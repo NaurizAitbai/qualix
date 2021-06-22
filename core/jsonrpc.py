@@ -32,7 +32,7 @@ class Qualix:
         context.load_cert_chain(settings.QUALIX_CRT, settings.QUALIX_KEY)
 
         request = urllib.request.Request(self.base_url, data, headers=headers, method='POST')
-        response = urllib.request.urlopen(request)
+        response = urllib.request.urlopen(request, context=context)
 
         data = json.loads(response.read())
 
