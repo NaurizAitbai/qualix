@@ -1,0 +1,8 @@
+.venv/
+.vscode/
+__pycache__/
+/uploads/
+/static/
+qualix/local_settings.py
+db.sqlite3
+#/certs/
