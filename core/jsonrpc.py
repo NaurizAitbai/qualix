@@ -29,7 +29,7 @@ class Qualix:
         data = json.dumps(data).encode(encoding='utf-8')
 
         context = ssl.create_default_context()
-        context.load_cert_chain(settings.QUALIX_CRT, settings.QUALIX_KEY)
+        context.load_cert_chain(self.crt, self.key)
 
         request = urllib.request.Request(self.base_url, data, headers=headers, method='POST')
         response = urllib.request.urlopen(request, context=context)
