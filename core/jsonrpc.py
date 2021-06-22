@@ -2,6 +2,7 @@ import ssl
 import json
 import urllib.request
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 
 
@@ -31,9 +32,16 @@ class Qualix:
         context.load_cert_chain(settings.QUALIX_CRT, settings.QUALIX_KEY)
 
         request = urllib.request.Request(self.base_url, data, headers=headers, method='POST')
-        response = urllib.request.urlopen(request, context=context)
+        response = urllib.request.urlopen(request)
 
-        data = response.read()
+        data = json.loads(response.read())
+
+        if 'error' in data:
+            error_code = data['error']['code']
+            message = data['error']['message']
+
+            if error_code == 1:
+                raise PermissionDenied(message)
 
         return data
     

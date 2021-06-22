@@ -1,8 +1,13 @@
-from django.http import HttpResponse
+from django.http import JsonResponse, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from core.jsonrpc import Qualix
 
 
 def auth_check(request):
     qualix = Qualix()
-    data = qualix.auth_check()
-    return HttpResponse(data)
+
+    try:
+        data = qualix.auth_check()
+        return JsonResponse(data)
+    except PermissionDenied:
+        return HttpResponseForbidden()
