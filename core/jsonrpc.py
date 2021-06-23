@@ -1,9 +1,9 @@
 import ssl
 import json
 import urllib.request
+import tempfile
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-
 
 
 class Qualix:
@@ -11,6 +11,19 @@ class Qualix:
         self.base_url = settings.QUALIX_BASEURL
         self.crt = settings.QUALIX_CRT
         self.key = settings.QUALIX_KEY
+
+        crt_file = tempfile.NamedTemporaryFile(mode='wt')
+        key_file = tempfile.NamedTemporaryFile(mode='wt')
+        crt_file.write(self.crt)
+        key_file.write(self.key)
+        crt_file.flush()
+        key_file.flush()
+
+        self.context = ssl.create_default_context()
+        self.context.load_cert_chain(crt_file.name, key_file.name)
+
+        crt_file.close()
+        key_file.close()
 
     def run_method(self, method, id, data=None):
         if not data:
@@ -28,13 +41,11 @@ class Qualix:
 
         data = json.dumps(data).encode(encoding='utf-8')
 
-        context = ssl.create_default_context()
-        context.load_cert_chain(self.crt, self.key)
-
         request = urllib.request.Request(self.base_url, data, headers=headers, method='POST')
-        response = urllib.request.urlopen(request, context=context)
+        response = urllib.request.urlopen(request, context=self.context)
 
         data = json.loads(response.read())
+        print(data)
 
         if 'error' in data:
             error_code = data['error']['code']
